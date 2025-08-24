@@ -1,125 +1,104 @@
 package com.example.helloworld
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+// ------------------ Student Data Class ------------------
 data class Student(
     val id: Int,
     var name: String,
     var age: Int
 )
 
-// StudentManager.kt
-class StudentManager {
+// ------------------ Async Student Manager ------------------
+class AsyncStudentManager {
     private val students = mutableListOf<Student>()
     private var nextId = 1
 
-    // ✅ Add Student
-    fun addStudent(name: String, age: Int) {
+    // ✅ Add student with delay (simulating DB/API insert)
+    suspend fun addStudent(name: String, age: Int) {
+        delay(1000) // simulate API call
         val student = Student(nextId++, name, age)
         students.add(student)
-        println("✅ Added: $student")
+        println("✅ Added (async): $student")
     }
 
-    // ✅ Remove Student
-    fun removeStudent(id: Int) {
+    // ✅ Remove student
+    suspend fun removeStudent(id: Int, onResult: (Boolean) -> Unit) {
+        delay(500) // simulate DB delay
         val removed = students.removeIf { it.id == id }
-        if (removed) println("❌ Removed student with ID $id")
-        else println("⚠️ No student found with ID $id")
+        onResult(removed)
     }
 
-    // ✅ Update Student
-    fun updateStudent(id: Int, newName: String, newAge: Int) {
-        val student = students.find { it.id == id }
-        if (student != null) {
-            student.name = newName
-            student.age = newAge
-            println("✏️ Updated: $student")
-        } else {
-            println("⚠️ No student found with ID $id")
-        }
+    // ✅ Get all students (callback + async)
+    suspend fun getAll(onResult: (List<Student>) -> Unit) {
+        delay(800) // simulate API fetch
+        onResult(students)
     }
 
-    // ✅ Display Students (with forEach)
-    fun displayStudents() {
-        if (students.isEmpty()) {
-            println("📭 No students found")
-        } else {
-            println("👨‍🎓 Student List:")
-            students.forEach { student ->
-                println("ID: ${student.id}, Name: ${student.name}, Age: ${student.age}")
-            }
-        }
-    }
-
-    // ✅ Filter by Age
-    fun filterByAge(minAge: Int) {
-        val filtered = students.filter { it.age >= minAge }
-        println("🔍 Students with age >= $minAge:")
-        filtered.forEach { println(it) }
-    }
-
-    // ✅ Filter by Age Range
-    fun filterByAgeRange(min: Int, max: Int) {
+    // ✅ Find by Age Range
+    suspend fun filterByAgeRange(min: Int, max: Int, onResult: (List<Student>) -> Unit) {
+        delay(700)
         val filtered = students.filter { it.age in min..max }
-        println("🔍 Students aged $min to $max:")
-        filtered.forEach { println(it) }
+        onResult(filtered)
     }
 
-    // ✅ Get All Students
-    fun getAll(): List<Student> = students
-
-    // ✅ Extract Names (using map)
-    fun getStudentNames(): List<String> {
-        return students.map { it.name }
-    }
-
-    // ✅ Categorize Ages (using when + map)
-    fun getStudentSummaries(): List<String> {
-        return students.map { student ->
-            val category = categorizeStudentAge(student.age)
-            "${student.name} (${student.age}) → $category"
+    // ✅ Summaries using map + when
+    suspend fun getStudentSummaries(onResult: (List<String>) -> Unit) {
+        delay(600)
+        val summaries = students.map { s ->
+            val category = when (s.age) {
+                in 0..12 -> "Child"
+                in 13..19 -> "Teenager"
+                in 20..25 -> "Young Adult"
+                in 26..60 -> "Adult"
+                else -> "Senior"
+            }
+            "${s.name} (${s.age}) → $category"
         }
-    }
-
-    // ✅ Age Category (using when)
-    private fun categorizeStudentAge(age: Int): String {
-        return when (age) {
-            in 0..12 -> "Child"
-            in 13..19 -> "Teenager"
-            in 20..25 -> "Young Adult"
-            in 26..60 -> "Adult"
-            else -> "Senior"
-        }
+        onResult(summaries)
     }
 }
 
-// Main.kt
-fun main() {
-    val manager = StudentManager()
+// ------------------ MAIN ------------------
+fun main() = runBlocking {
+    val manager = AsyncStudentManager()
 
-    // Add Students
-    manager.addStudent("Ali", 22)
-    manager.addStudent("Sara", 19)
-    manager.addStudent("John", 25)
+    // ✅ Launching coroutines in parallel
+    val job = launch {
+        manager.addStudent("Ali", 22)
+        manager.addStudent("Sara", 19)
+        manager.addStudent("John", 25)
+    }
+    job.join() // wait until students are added
 
-    // Display
-    manager.displayStudents()
+    // ✅ Fetch all students
+    manager.getAll { list ->
+        println("👨‍🎓 All Students:")
+        list.forEach { println(it) }
+    }
 
-    // Filter
-    manager.filterByAge(21)
-    manager.filterByAgeRange(18, 23)
+    // ✅ Filter by Age
+    manager.filterByAgeRange(18, 23) { list ->
+        println("🔍 Students between 18-23:")
+        list.forEach { println(it) }
+    }
 
-    // Update
-    manager.updateStudent(2, "Sara Updated", 20)
+    // ✅ Summaries
+    manager.getStudentSummaries { summaries ->
+        println("📋 Summaries:")
+        summaries.forEach { println(it) }
+    }
 
-    // Names
-    println("📚 Student Names: ${manager.getStudentNames()}")
+    // ✅ Remove student
+    manager.removeStudent(2) { success ->
+        println(if (success) "❌ Removed student with ID 2" else "⚠️ Student not found")
+    }
 
-    // Summaries
-    println("📋 Student Summaries:")
-    manager.getStudentSummaries().forEach { println(it) }
-
-    // Remove
-    manager.removeStudent(1)
-
-    // Final List
-    manager.displayStudents()
+    // ✅ Show remaining
+    manager.getAll { list ->
+        println("📦 Final Student List:")
+        list.forEach { println(it) }
+    }
 }
