@@ -1,4 +1,4 @@
-package com.example.helloworld
+package com.example.studentdashboard
 
 import kotlinx.coroutines.runBlocking
 
@@ -27,7 +27,7 @@ fun main() = runBlocking {
             is Screen.ViewStudents -> showAllStudents()
             is Screen.AddStudent -> addNewStudent()
             is Screen.Exit -> {
-                println("👋 Exiting the app...")
+                println("Exiting the app...")
                 Screen.Exit
             }
         }
@@ -36,10 +36,10 @@ fun main() = runBlocking {
 
 // ------------------ Screens ------------------
 fun showMainMenu(): Screen {
-    println("\n=== 📚 Student Dashboard ===")
-    println("1️⃣ View Students")
-    println("2️⃣ Add Student")
-    println("3️⃣ Exit")
+    println("\n=== Student Dashboard ===")
+    println("1 View Students")
+    println("2 Add Student")
+    println("3 Exit")
 
     print("Choose option (1-3): ")
     return when (readlnOrNull()?.trim()) {
@@ -47,14 +47,14 @@ fun showMainMenu(): Screen {
         "2" -> Screen.AddStudent
         "3" -> Screen.Exit
         else -> {
-            println("❌ Invalid option, try again.")
+            println("Invalid option, try again.")
             Screen.MainMenu
         }
     }
 }
 
 fun showAllStudents(): Screen {
-    println("\n📋 All Students:")
+    println("\nAll Students:")
     if (studentList.isEmpty()) {
         println("No students found.")
     } else {
@@ -79,9 +79,9 @@ fun addNewStudent(): Screen {
     if (id != null && !name.isNullOrEmpty() && age != null) {
         val newStudent = Student(id, name, age)
         studentList.add(newStudent)
-        println("✅ Student added: $newStudent")
+        println("Student added: $newStudent")
     } else {
-        println("❌ Invalid input. Student not added.")
+        println("Invalid input. Student not added.")
     }
 
     println("\nPress Enter to go back to Main Menu.")

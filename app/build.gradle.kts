@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.helloworld"
+    namespace = "com.example.studentdashboard"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.helloworld"
+        applicationId = "com.example.studentdashboard"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.example.helloworld
+package com.example.studentdashboard
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -42,15 +42,15 @@ class FakeStudentApi {
 fun main() = runBlocking {
     val api = FakeStudentApi()
 
-    println("📡 Fetching all students...")
+    println(" Fetching all students...")
     val result1 = api.fetchStudents()
     handleResponse(result1)
 
-    println("\n📡 Fetching single student with ID 2...")
+    println("\n Fetching single student with ID 2...")
     val result2 = api.fetchStudentById(2)
     handleResponse(result2)
 
-    println("\n📡 Fetching single student with ID 99...")
+    println("\n Fetching single student with ID 99...")
     val result3 = api.fetchStudentById(99)
     handleResponse(result3)
 }
@@ -58,8 +58,8 @@ fun main() = runBlocking {
 // ------------------ Response Handler ------------------
 fun <T> handleResponse(response: ApiResponse<T>) {
     when (response) {
-        is ApiResponse.Success -> println("✅ Success → ${response.data}")
-        is ApiResponse.Error -> println("❌ Error → ${response.message}")
-        is ApiResponse.Loading -> println("⏳ Loading...")
+        is ApiResponse.Success -> println("Success → ${response.data}")
+        is ApiResponse.Error -> println("Error → ${response.message}")
+        is ApiResponse.Loading -> println("Loading...")
     }
 }

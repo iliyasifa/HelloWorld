@@ -1,4 +1,4 @@
-package com.example.helloworld
+package com.example.studentdashboard
 
 import org.junit.Test
 
